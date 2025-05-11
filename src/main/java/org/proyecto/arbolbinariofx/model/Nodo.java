@@ -7,8 +7,8 @@ public class Nodo {
 
     public Nodo(int valor) {
         this.valor = valor;
-        this.izquierdo = izquierdo;
-        this.derecho = derecho;
+        this.izquierdo = null;
+        this.derecho = null;
     }
 
     public int getValor() {
@@ -35,4 +35,8 @@ public class Nodo {
         this.derecho = derecho;
     }
 
+    // Metodo útil para determinar si un nodo es una hoja
+    public boolean esHoja() {
+        return izquierdo == null && derecho == null;
+    }
 }

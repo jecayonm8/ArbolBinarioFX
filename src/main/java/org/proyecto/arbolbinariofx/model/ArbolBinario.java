@@ -1,5 +1,4 @@
 package org.proyecto.arbolbinariofx.model;
-import org.proyecto.arbolbinariofx.model.Nodo;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ public class ArbolBinario {
         raiz = insertarRecursivo(raiz, valor);
     }
 
-
     private Nodo insertarRecursivo(Nodo nodo, int valor) {
         if (nodo == null) {
             return new Nodo(valor);
@@ -35,76 +33,131 @@ public class ArbolBinario {
         return nodo;
     }
 
-    // Implementación de los métodos de recorrido según especificación
+    // Recorrido en Preorden
     public List<Integer> preOrden() {
         List<Integer> resultado = new ArrayList<>();
         preOrden(raiz, resultado);
         return resultado;
     }
 
-    //metodo para tipo de recorrido en preorden
-    public void preOrden(Nodo raiz) {
-        if(raiz == null) return;
-
-        System.out.println(raiz.getValor()); // Visitamos primero la raíz
-        preOrden(raiz.getIzquierdo());       // Luego subárbol izquierdo
-        preOrden(raiz.getDerecho());         // Finalmente subárbol derecho
+    private void preOrden(Nodo nodo, List<Integer> resultado) {
+        if (nodo == null) return;
+        resultado.add(nodo.getValor());
+        preOrden(nodo.getIzquierdo(), resultado);
+        preOrden(nodo.getDerecho(), resultado);
     }
 
-    // Versión que almacena los resultados en una lista
-    private void preOrden(Nodo raiz, List<Integer> resultado) {
-        if(raiz == null) return;
-
-        resultado.add(raiz.getValor());    // Visitamos primero la raíz
-        preOrden(raiz.getIzquierdo(), resultado); // Luego subárbol izquierdo
-        preOrden(raiz.getDerecho(), resultado);   // Finalmente subárbol derecho
-    }
-
+    //Recorrido en Inorden
     public List<Integer> inOrden() {
         List<Integer> resultado = new ArrayList<>();
         inOrden(raiz, resultado);
         return resultado;
     }
 
-    public void inOrden(Nodo raiz) {
-        if(raiz == null) return;
-
-        inOrden(raiz.getIzquierdo());       // Primero subárbol izquierdo
-        System.out.println(raiz.getValor()); // Luego visitamos la raíz
-        inOrden(raiz.getDerecho());         // Finalmente subárbol derecho
+    private void inOrden(Nodo nodo, List<Integer> resultado) {
+        if (nodo == null) return;
+        inOrden(nodo.getIzquierdo(), resultado);
+        resultado.add(nodo.getValor());
+        inOrden(nodo.getDerecho(), resultado);
     }
 
-    // Versión que almacena los resultados en una lista
-    private void inOrden(Nodo raiz, List<Integer> resultado) {
-        if(raiz == null) return;
-
-        inOrden(raiz.getIzquierdo(), resultado); // Primero subárbol izquierdo
-        resultado.add(raiz.getValor());         // Luego visitamos la raíz
-        inOrden(raiz.getDerecho(), resultado);   // Finalmente subárbol derecho
-    }
-
+    //Recorrido en Postorden
     public List<Integer> postOrden() {
         List<Integer> resultado = new ArrayList<>();
         postOrden(raiz, resultado);
         return resultado;
     }
 
-    public void postOrden(Nodo raiz) {
-        if(raiz == null) return;
-
-        postOrden(raiz.getIzquierdo());     // Primero subárbol izquierdo
-        postOrden(raiz.getDerecho());       // Luego subárbol derecho
-        System.out.println(raiz.getValor()); // Finalmente visitamos la raíz
+    private void postOrden(Nodo nodo, List<Integer> resultado) {
+        if (nodo == null) return;
+        postOrden(nodo.getIzquierdo(), resultado);
+        postOrden(nodo.getDerecho(), resultado);
+        resultado.add(nodo.getValor());
     }
 
-    // Versión que almacena los resultados en una lista
-    private void postOrden(Nodo raiz, List<Integer> resultado) {
-        if(raiz == null) return;
+    // Metodos para Composición del Árbol
 
-        postOrden(raiz.getIzquierdo(), resultado); // Primero subárbol izquierdo
-        postOrden(raiz.getDerecho(), resultado);   // Luego subárbol derecho
-        resultado.add(raiz.getValor());           // Finalmente visitamos la raíz
+    /**
+     * Calcula el peso del árbol (número total de nodos).
+     * @return El peso del árbol.
+     */
+    public int getPeso() {
+        return getPesoRecursivo(raiz);
     }
+
+    private int getPesoRecursivo(Nodo nodo) {
+        if (nodo == null) {
+            return 0;
+        }
+        return 1 + getPesoRecursivo(nodo.getIzquierdo()) + getPesoRecursivo(nodo.getDerecho());
+    }
+
+    /**
+     * Calcula la altura del árbol.
+     * La altura de un árbol vacío es -1 (aquí usaremos -1 para vacío y 0 para un solo nodo).
+     * La altura de un árbol con un solo nodo es 0.
+     * @return La altura del árbol.
+     */
+    public int getAltura() {
+        return getAlturaRecursivo(raiz);
+    }
+
+    private int getAlturaRecursivo(Nodo nodo) {
+        if (nodo == null) {
+            return -1; // Altura de un árbol vacío
+        }
+        int alturaIzquierda = getAlturaRecursivo(nodo.getIzquierdo());
+        int alturaDerecha = getAlturaRecursivo(nodo.getDerecho());
+        return 1 + Math.max(alturaIzquierda, alturaDerecha);
+    }
+
+    /**
+     * Calcula la longitud de camino interno del árbol.
+     * Es la suma de las profundidades de todos los nodos internos.
+     * La profundidad de la raíz es 0.
+     * @return La longitud de camino interno.
+     */
+    public int getLongitudCaminoInterno() {
+        return getLongitudCaminoInternoRecursivo(raiz, 0);
+    }
+
+    private int getLongitudCaminoInternoRecursivo(Nodo nodo, int profundidad) {
+        if (nodo == null) {
+            return 0;
+        }
+        // Un nodo es interno si no es una hoja (es decir, tiene al menos un hijo)
+        // O, más simple para la suma, sumamos la profundidad de todos los nodos.
+        // Por ahora, sumaremos la profundidad de todos los nodos existentes.
+        return profundidad +
+                getLongitudCaminoInternoRecursivo(nodo.getIzquierdo(), profundidad + 1) +
+                getLongitudCaminoInternoRecursivo(nodo.getDerecho(), profundidad + 1);
+    }
+
+    /**
+     * Calcula la longitud de camino externo del árbol.
+     * Es la suma de las profundidades de todos los "nodos externos" conceptuales
+     * (los lugares donde se podría insertar un nuevo nodo, es decir, los hijos nulos de las hojas).
+     * Una forma de calcularlo es usando la relación: CPE = CPI + 2 * N (para árboles binarios llenos).
+     * Otra forma es contar la profundidad de cada punto nulo.
+     * Para este ejemplo, calcularemos la suma de las profundidades de las hojas.
+     * Si una hoja está a profundidad 'd', contribuye 'd' a esta suma.
+     * @return La suma de las profundidades de las hojas.
+     */
+    public int getSumaProfundidadHojas() { // Renombrado para mayor claridad
+        return getSumaProfundidadHojasRecursivo(raiz, 0);
+    }
+
+    private int getSumaProfundidadHojasRecursivo(Nodo nodo, int profundidad) {
+        if (nodo == null) {
+            return 0;
+        }
+        if (nodo.esHoja()) { // Usamos el metodo esHoja() de la clase Nodo
+            return profundidad;
+        }
+        return getSumaProfundidadHojasRecursivo(nodo.getIzquierdo(), profundidad + 1) +
+                getSumaProfundidadHojasRecursivo(nodo.getDerecho(), profundidad + 1);
+    }
+
 
     public void limpiar() {
         raiz = null;

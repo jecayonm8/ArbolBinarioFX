@@ -12,6 +12,7 @@ import org.proyecto.arbolbinariofx.model.ArbolBinario;
 import org.proyecto.arbolbinariofx.model.Nodo;
 
 import java.util.List;
+import java.util.StringJoiner; // Para construir strings de forma más eficiente
 
 public class ArbolViewController {
     @FXML
@@ -36,7 +37,7 @@ public class ArbolViewController {
     private Canvas arbolCanvas;
 
     @FXML
-    private TextArea resultadosArea;
+    private TextArea resultadosArea; // Aquí mostraremos toda la información
 
     private ArbolBinario arbol;
 
@@ -44,18 +45,14 @@ public class ArbolViewController {
     public void initialize() {
         arbol = new ArbolBinario();
 
-        // Configurar eventos de botones
         insertarBtn.setOnAction(e -> insertarValor());
         preordenBtn.setOnAction(e -> mostrarPreorden());
         inordenBtn.setOnAction(e -> mostrarInorden());
         postordenBtn.setOnAction(e -> mostrarPostorden());
         limpiarBtn.setOnAction(e -> limpiarArbol());
 
-        // Cargar árbol de ejemplo
         cargarArbolEjemplo();
-
-        // Actualizar vista
-        dibujarArbol();
+        actualizarVistaCompleta(); // Llama a un metodo que actualiza
     }
 
     private void insertarValor() {
@@ -63,46 +60,118 @@ public class ArbolViewController {
             int valor = Integer.parseInt(valorField.getText());
             arbol.insertar(valor);
             valorField.clear();
-            dibujarArbol();
+            actualizarVistaCompleta(); // Actualiza dibujo y estadísticas
         } catch (NumberFormatException ex) {
-            mostrarAlerta("Error", "Por favor, ingrese un número válido.");
+            mostrarAlerta("Error de Entrada", "Por favor, ingrese un número entero válido.");
         }
     }
 
     private void mostrarPreorden() {
+        if (arbol.getRaiz() == null) {
+            resultadosArea.setText("Árbol vacío.");
+            return;
+        }
         mostrarRecorrido("Preorden", arbol.preOrden());
+        // Por ahora, dejaremos que la acción principal (insertar, limpiar) actualice todo.
     }
 
     private void mostrarInorden() {
+        if (arbol.getRaiz() == null) {
+            resultadosArea.setText("Árbol vacío.");
+            return;
+        }
         mostrarRecorrido("Inorden", arbol.inOrden());
     }
 
     private void mostrarPostorden() {
+        if (arbol.getRaiz() == null) {
+            resultadosArea.setText("Árbol vacío.");
+            return;
+        }
         mostrarRecorrido("Postorden", arbol.postOrden());
     }
 
     private void limpiarArbol() {
         arbol.limpiar();
-        resultadosArea.clear();
-        dibujarArbol();
+        actualizarVistaCompleta();
     }
 
     private void cargarArbolEjemplo() {
-        // Carga un árbol de ejemplo para visualización inicial
         int[] valores = {50, 30, 70, 20, 40, 60, 80};
         for (int valor : valores) {
             arbol.insertar(valor);
         }
     }
 
-    private void mostrarRecorrido(String tipo, List<Integer> recorrido) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(tipo).append(": ");
-        for (Integer valor : recorrido) {
-            sb.append(valor).append(" ");
+    /**
+     * Actualiza el dibujo del árbol y la información de estadísticas.
+     */
+    private void actualizarVistaCompleta() {
+        dibujarArbol();
+        actualizarEstadisticasArbol();
+    }
+
+    /**
+     * Muestra las estadísticas del árbol (peso, altura, etc.) en el TextArea.
+     */
+    private void actualizarEstadisticasArbol() {
+        if (arbol.getRaiz() == null) {
+            resultadosArea.setText("El árbol está vacío.\n" +
+                    "Peso: 0\n" +
+                    "Altura: -1 (o 0 si prefieres para vacío)\n" +
+                    "Longitud Camino Interno: 0\n" +
+                    "Suma Profundidad Hojas: 0");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Estadísticas del Árbol ---\n");
+        sb.append("Peso (Nodos): ").append(arbol.getPeso()).append("\n");
+        sb.append("Altura: ").append(arbol.getAltura()).append("\n");
+        sb.append("Longitud Camino Interno (Suma Profundidades): ").append(arbol.getLongitudCaminoInterno()).append("\n");
+        sb.append("Suma Profundidades de Hojas: ").append(arbol.getSumaProfundidadHojas()).append("\n\n");
+
+
+        // Si quiero que los recorridos se muestren siempre debajo:
+        sb.append("--- Recorridos ---\n");
+        sb.append("Preorden: ").append(listToString(arbol.preOrden())).append("\n");
+        sb.append("Inorden: ").append(listToString(arbol.inOrden())).append("\n");
+        sb.append("Postorden: ").append(listToString(arbol.postOrden())).append("\n");
+
+
         resultadosArea.setText(sb.toString());
     }
+
+    // Metodo para mostrar un recorrido específico (puede ser llamado por los botones de recorrido)
+    private void mostrarRecorrido(String tipo, List<Integer> recorrido) {
+        StringBuilder sb = new StringBuilder();
+        // Primero, mostramos las estadísticas actuales del árbol
+        if (arbol.getRaiz() == null) {
+            sb.append("El árbol está vacío.\n");
+        } else {
+            sb.append("--- Estadísticas del Árbol ---\n");
+            sb.append("Peso (Nodos): ").append(arbol.getPeso()).append("\n");
+            sb.append("Altura: ").append(arbol.getAltura()).append("\n");
+            sb.append("Longitud Camino Interno (Suma Profundidades): ").append(arbol.getLongitudCaminoInterno()).append("\n");
+            sb.append("Suma Profundidades de Hojas: ").append(arbol.getSumaProfundidadHojas()).append("\n\n");
+        }
+        // Luego, el recorrido solicitado
+        sb.append(tipo).append(": ");
+        sb.append(listToString(recorrido));
+
+        resultadosArea.setText(sb.toString());
+    }
+
+    // Helper para convertir una lista a String
+    private String listToString(List<Integer> list) {
+        if (list.isEmpty()) return "[]";
+        StringJoiner joiner = new StringJoiner(", ", "[", "]");
+        for (Integer valor : list) {
+            joiner.add(String.valueOf(valor));
+        }
+        return joiner.toString();
+    }
+
 
     private void dibujarArbol() {
         GraphicsContext gc = arbolCanvas.getGraphicsContext2D();
@@ -116,17 +185,14 @@ public class ArbolViewController {
     private void dibujarNodo(GraphicsContext gc, Nodo nodo, double x, double y, double offset) {
         if (nodo == null) return;
 
-        // Dibujar el nodo
         gc.setFill(Color.LIGHTBLUE);
         gc.fillOval(x - 15, y - 15, 30, 30);
         gc.setStroke(Color.BLACK);
         gc.strokeOval(x - 15, y - 15, 30, 30);
 
-        // Dibujar el valor del nodo
         gc.setFill(Color.BLACK);
-        gc.fillText(String.valueOf(nodo.getValor()), x - 5, y + 5);
+        gc.fillText(String.valueOf(nodo.getValor()), x - (String.valueOf(nodo.getValor()).length() * 3.5), y + 5); // Ajuste para centrar texto
 
-        // Dibujar conexiones a los hijos
         if (nodo.getIzquierdo() != null) {
             double childX = x - offset;
             double childY = y + 50;
@@ -149,5 +215,4 @@ public class ArbolViewController {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
-
 }

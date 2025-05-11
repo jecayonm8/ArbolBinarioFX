@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.proyecto.arbolbinariofx.controller.ArbolViewController">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.proyecto.arbolbinariofx.controller.ArbolViewController">
     <top>
         <VBox spacing="10.0" BorderPane.alignment="CENTER">
             <children>
@@ -35,6 +35,6 @@
         <Canvas fx:id="arbolCanvas" height="400.0" width="800.0" BorderPane.alignment="CENTER" />
     </center>
     <bottom>
-        <TextArea fx:id="resultadosArea" prefHeight="100.0" BorderPane.alignment="CENTER" />
+        <TextArea fx:id="resultadosArea" prefHeight="149.0" prefWidth="800.0" BorderPane.alignment="CENTER" />
     </bottom>
 </BorderPane>
